@@ -41,6 +41,9 @@ max_temp = 35.00
 
 # heatmap = np.zeros([24*8,32*8,3])
 
+thread_checker1 = False
+thread_checker2 = False
+
 
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -121,6 +124,9 @@ class Worker(QObject):
                         break
 
                 ClientSocket.close()
+
+                thread_checker1 = True
+
             except:
                 # print('No response from server: ' + str(server_host) + ':' + str(server_port))
                 # time.sleep(1.0)
@@ -151,20 +157,24 @@ class Worker_get_data(QObject):
 
     def get_temperature(self):   ### 반드시 str값!!!
         while True:
-            for i in range(camera_num):
-                time.sleep(0.2)
-                ui.lbl_temp[i].setText(str(random.randint(16,34)))
-                time.sleep(0.2)
-                ui.lbl_volt1[i].setText(str(random.randint(16,34)))
-                time.sleep(0.2)
-                ui.lbl_volt2[i].setText(str(random.randint(16,34)))
-                time.sleep(0.2)
-                ui.lbl_current[i].setText(str(random.randint(16,34)))
-                time.sleep(0.2)
-                if int(ui.lbl_temp[i].text()) >= 25:
-                    ui.lbl_prob_chk[i].setStyleSheet("background-color: rgb(255, 0, 0);")
-                else:
-                    ui.lbl_prob_chk[i].setStyleSheet("background-color: rgb(255, 255, 255);")
+            try:
+                for i in range(camera_num):
+                    print("temperature getting")
+                    time.sleep(0.2)
+                    ui.lbl_temp[i].setText(str(random.randint(16,34)))
+                    time.sleep(0.2)
+                    ui.lbl_volt1[i].setText(str(random.randint(16,34)))
+                    time.sleep(0.2)
+                    ui.lbl_volt2[i].setText(str(random.randint(16,34)))
+                    time.sleep(0.2)
+                    ui.lbl_current[i].setText(str(random.randint(16,34)))
+                    time.sleep(0.2)
+                    if int(ui.lbl_temp[i].text()) >= 25:
+                        ui.lbl_prob_chk[i].setStyleSheet("background-color: rgb(255, 0, 0);")
+                    else:
+                        ui.lbl_prob_chk[i].setStyleSheet("background-color: rgb(255, 255, 255);")
+            except:
+                print("UI loading...")
 
 worker_get_data = Worker_get_data()
 worker_get_data.moveToThread(thread_get_data)
@@ -207,6 +217,7 @@ class Worker2(QObject):
         self.cam_num = cam_num
 
     def display_plot(self):
+        global thread_checker2
         while True:
             try:
                 self.temperature_upscale = cv2.resize(temperature[self.cam_num], None, fx=8, fy=8, interpolation=cv2.INTER_CUBIC)
@@ -219,11 +230,12 @@ class Worker2(QObject):
                 chart[self.cam_num].imshow(self.temperature_upscale, cmap='jet', vmin=min_temp, vmax=max_temp)
 
                 canvas[self.cam_num].draw()
-                print(canvas[self.cam_num])
-                print(self.temperature_upscale)
-                print("canvas drawing")
+                #print(canvas[self.cam_num])
+                #print(self.temperature_upscale)
+                #print("canvas drawing")
                 print("worker{num} 작동중".format(num = self.cam_num))
                 time.sleep(1)
+                thread_checker2 = True
             except:
                 print("drawing fail : ", self.cam_num)
 worker_display = []
@@ -241,6 +253,8 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1035, 758)
+        MainWindow.setWindowState(Qt.WindowMaximized)
+        MainWindow.setWindowFlags((Qt.Window | Qt.FramelessWindowHint))
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.centralwidget)
@@ -418,15 +432,25 @@ if __name__ == "__main__":
     MainWindow.show()
 
     thread.start()
+
     for i in range(len(temperature)):
         time.sleep(0.4)
         try:
             thread_draw_chart[i].start()
         except:
             print("drawing fail")
+
     ##time term
-    time.sleep(10)
-    thread_get_data.start()
+    if thread_checker2:
+        thread_get_data.start()
+    # while True:
+    #     try:
+    #         ui.lbl_temp[15].setText("checking")
+    #         time.sleep(3)
+    #         thread_get_data.start()
+    #         break
+    #     except:
+    #         print("waiting for UI load")
 
     # ClientSocket.close()
     sys.exit(app.exec_())
