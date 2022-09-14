@@ -1,17 +1,6 @@
-
 from PyQt5 import QtCore, QtGui, QtWidgets
-import time
-import math
-import numpy as np
-import pickle
-import cv2
-import socket
-import sys
 
-import matplotlib.pyplot as plt
-from Equipment_States import Equipment_state
-
-camera_num = 15
+camera_num = 9 ### device에서 가져오기
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -134,12 +123,12 @@ class Ui_MainWindow(object):
             self.CAM_Layout[i].setStretch(0, 3)
             self.CAM_Layout[i].setStretch(1, 1)
 
-            if camera_num < 4:
+            if camera_num - 1 < 4:
                 list_x = [0,0,1,1]
                 list_y = [0,1,0,1]
                 self.Outer_Layout.addLayout(self.CAM_Layout[i], list_x[i], list_y[i])
 
-            elif camera_num < 9:
+            elif camera_num - 1 < 9:
                 list_x = [0,0,0,1,1,1,2,2,2]
                 list_y = [0,1,2,0,1,2,0,1,2]
                 self.Outer_Layout.addLayout(self.CAM_Layout[i], list_x[i], list_y[i])
