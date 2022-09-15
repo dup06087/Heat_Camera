@@ -1,6 +1,6 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-camera_num = 9 ### device에서 가져오기
+camera_num = 16 ### device에서 가져오기
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -10,8 +10,8 @@ class Ui_MainWindow(object):
         MainWindow.setWindowFlags((QtCore.Qt.Window | QtCore.Qt.FramelessWindowHint))
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
-        self.gridLayout_2 = QtWidgets.QGridLayout(self.centralwidget)
-        self.gridLayout_2.setObjectName("gridLayout_2")
+        self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
+        self.gridLayout.setObjectName("gridLayout")
 
         self.Outer_Layout = QtWidgets.QGridLayout()
         self.Outer_Layout.setSpacing(0)
@@ -81,7 +81,7 @@ class Ui_MainWindow(object):
                 self.CAM_Layout[i].addLayout(self.CAM_LHP[i])
             except:
                 print("drawing fail2 : ", i)
-
+            
 
             self.CAM_RHP.append(QtWidgets.QVBoxLayout())
             self.CAM_RHP[i].setObjectName("CAM_RHP{num}".format(num = i))
@@ -99,6 +99,9 @@ class Ui_MainWindow(object):
             self.lbl_prob_chk[i].setAlignment(QtCore.Qt.AlignCenter)
             self.lbl_prob_chk[i].setObjectName("lbl_prob_chk{num}".format(num = i))
             self.CAM_RHP[i].addWidget(self.lbl_prob_chk[i])
+
+
+
             self.lbl_temp.append(QtWidgets.QLabel(self.centralwidget))
             self.lbl_temp[i].setFrameShape(QtWidgets.QFrame.Box)
             self.lbl_temp[i].setAlignment(QtCore.Qt.AlignCenter)
@@ -123,6 +126,18 @@ class Ui_MainWindow(object):
             self.CAM_Layout[i].setStretch(0, 3)
             self.CAM_Layout[i].setStretch(1, 1)
 
+            # layout = QtWidgets.QVBoxLayout()
+            # layout.addWidget(self.lbl_temp[i])
+            # layout.addWidget(self.lbl_volt1[i])
+            # layout.addWidget(self.lbl_volt2[i])
+            # layout.addWidget(self.lbl_current[i])
+            #
+            # widget = QtWidgets.QWidget()
+            # widget.setLayout(layout)
+            # scroll_area = QtWidgets.QScrollArea()
+            # scroll_area.setWidget(widget)
+            # scroll_area.setWidgetResizable(True)
+
             if camera_num - 1 < 4:
                 list_x = [0,0,1,1]
                 list_y = [0,1,0,1]
@@ -138,7 +153,7 @@ class Ui_MainWindow(object):
                 list_y = [0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3]
                 self.Outer_Layout.addLayout(self.CAM_Layout[i], list_x[i], list_y[i])
 
-        self.gridLayout_2.addLayout(self.Outer_Layout, 0, 2, 1, 1)
+        self.gridLayout.addLayout(self.Outer_Layout, 0, 2, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1035, 21))
@@ -157,12 +172,12 @@ class Ui_MainWindow(object):
         for i in range(camera_num):
             self.lbl_CAM_Num[i].setText(_translate("MainWindow", "CAM{num}".format(num = i + 1)))
             self.lbl_prob_chk[i].setText(_translate("MainWindow", "문제 발생"))
-            self.lbl_temp[i].setText(_translate("MainWindow", "{num} No_Signal".format(num = i+1)))
-            self.lbl_volt1[i].setText(_translate("MainWindow", "{num} No_Signal".format(num = i + 1)))
-            self.lbl_volt2[i].setText(_translate("MainWindow", "{num} No_Signal".format(num = i + 1)))
-            self.lbl_current[i].setText(_translate("MainWindow", "{num} No_Signal".format(num = i + 1)))
-
-
+            # self.lbl_temp[i].setText(_translate("MainWindow", "{num} No_Signal".format(num = i+1)))
+            # self.lbl_volt1[i].setText(_translate("MainWindow", "{num} No_Signal".format(num = i + 1)))
+            # self.lbl_volt2[i].setText(_translate("MainWindow", "{num} No_Signal".format(num = i + 1)))
+            # self.lbl_current[i].setText(_translate("MainWindow", "{num} No_Signal".format(num = i + 1)))
+#
+#
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
