@@ -1,0 +1,207 @@
+from PyQt5 import QtCore, QtGui, QtWidgets
+
+from get_cam_num import  camera_num
+import main_threadings
+
+class Ui_MainWindow(object):
+    def setupUi(self, MainWindow):
+        MainWindow.setObjectName("MainWindow")
+        # MainWindow.resize(1035, 758)
+        MainWindow.setWindowState(QtCore.Qt.WindowMaximized)
+        MainWindow.setWindowFlags((QtCore.Qt.Window | QtCore.Qt.FramelessWindowHint))
+        self.centralwidget = QtWidgets.QWidget(MainWindow)
+        self.centralwidget.setObjectName("centralwidget")
+        self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
+        self.gridLayout.setObjectName("gridLayout")
+
+        self.Outer_Layout = QtWidgets.QGridLayout()
+        self.Outer_Layout.setSpacing(0)
+        self.Outer_Layout.setContentsMargins(0,0,0,0)
+        # self.Outer_Layout.setMargin(0)
+        self.Outer_Layout.setObjectName("Outer_Layout")
+
+        self.Line1 = QtWidgets.QHBoxLayout()
+        self.Line1.setObjectName("Line1")
+        self.Line2 = QtWidgets.QHBoxLayout()
+        self.Line2.setObjectName("Line2")
+        self.Line3 = QtWidgets.QHBoxLayout()
+        self.Line3.setObjectName("Line3")
+        self.Line4 = QtWidgets.QHBoxLayout()
+        self.Line4.setObjectName("Line4")
+
+
+        self.CAM_Layout = []
+        self.CAM_LHP = []
+        self.lbl_CAM_Num = []
+        self.chart = []
+        self.CAM_RHP = []
+        self.lbl_prob_chk = []
+        self.lbl_temp = []
+        self.lbl_volt1 = []
+        self.lbl_volt2 = []
+        self.lbl_current = []
+        self.scrollArea = []
+        self.scroll_layout = []
+        self.status = []
+        self.status_label = []
+
+        for i in range(camera_num):
+
+            self.CAM_Layout.append(QtWidgets.QHBoxLayout())
+            self.CAM_Layout[i].setSpacing(0)
+            # self.CAM_Layout[i].setMargin(0)
+            self.CAM_Layout[i].setSizeConstraint(QtWidgets.QLayout.SetDefaultConstraint)
+            self.CAM_Layout[i].setObjectName("CAM{num}_Layout".format(num=i))
+            self.CAM_LHP.append(QtWidgets.QVBoxLayout())
+            self.CAM_Layout[i].setSpacing(0)
+            self.CAM_Layout[i].setContentsMargins(0,0,0,0)
+            self.CAM_LHP[i].setObjectName("CAM{num}_LHP".format(num = i))
+
+            ### cam label
+            self.lbl_CAM_Num.append(QtWidgets.QPushButton(self.centralwidget))
+            sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
+            sizePolicy.setHorizontalStretch(0)
+            sizePolicy.setVerticalStretch(0)
+            self.lbl_CAM_Num[i].setSizePolicy(sizePolicy)
+            font = QtGui.QFont()
+            font.setPointSize(12)
+            font.setBold(True)
+            font.setItalic(False)
+            font.setUnderline(True)
+            font.setWeight(75)
+            self.lbl_CAM_Num[i].setFont(font)
+            self.lbl_CAM_Num[i].setObjectName("lbl_CAM_Num{num}".format(num = i))
+            self.CAM_LHP[i].addWidget(self.lbl_CAM_Num[i])
+
+            self.lbl_CAM_Num[i].clicked.connect(self.show_new_window)
+            #cam label end
+
+
+            #canvas
+            self.chart.append(QtWidgets.QVBoxLayout())
+            try:
+
+                self.chart[i].addWidget(main_threadings.canvas[i])
+                self.chart[i].setSpacing(0)
+                self.chart[i].setContentsMargins(0,0,0,0)
+                self.chart[i].setObjectName("chart{num}".format(num = i))
+                self.CAM_LHP[i].addLayout(self.chart[i])
+                self.CAM_Layout[i].addLayout(self.CAM_LHP[i])
+            except:
+                print("drawing fail2 : ", i)
+
+
+            self.CAM_RHP.append(QtWidgets.QVBoxLayout())
+            self.CAM_RHP[i].setObjectName("CAM_RHP{num}".format(num = i))
+            self.lbl_prob_chk.append(QtWidgets.QLabel(self.centralwidget))
+            sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+            sizePolicy.setHorizontalStretch(0)
+            sizePolicy.setVerticalStretch(0)
+            # sizePolicy.setHeightForWidth(self.lbl_prob_chk[i].sizePolicy().hasHeightForWidth())
+            self.lbl_prob_chk[i].setSizePolicy(sizePolicy)
+            font = QtGui.QFont()
+            font.setPointSize(13)
+            self.lbl_prob_chk[i].setFont(font)
+            self.lbl_prob_chk[i].setStyleSheet("background-color: rgb(255, 255, 255);")
+            self.lbl_prob_chk[i].setFrameShape(QtWidgets.QFrame.WinPanel)
+            self.lbl_prob_chk[i].setAlignment(QtCore.Qt.AlignCenter)
+            self.lbl_prob_chk[i].setObjectName("lbl_prob_chk{num}".format(num = i))
+            self.CAM_RHP[i].addWidget(self.lbl_prob_chk[i])
+
+            ### 밑에부터 scroll area
+
+            self.scrollArea.append(QtWidgets.QScrollArea()) ##스크롤 영역 생성
+            self.scrollArea[i].setWidgetResizable(True)
+            self.scroll_layout.append(QtWidgets.QVBoxLayout()) ## 스크롤 넣을 layout >>> scroll
+            initial_value = QtWidgets.QLabel("No_signal\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
+            self.status_label.append(initial_value) ### 동적으로 초기화가 안 됨
+
+
+            # result = None
+            # while result is None:  ###종속성
+            #     try:
+            #         result = Get_Equipment_status.values[i]
+            #         self.status_label.append(QtWidgets.QLabel(result)) ### 이것이 실행 될 때 이미 값이들어와야함
+            #     except:
+            #         pass
+
+            font_status = QtGui.QFont()
+            font_status.setPointSize(15)
+            self.status_label[i].setFont(font_status)
+            self.status.append(self.status_label[i]) ### scroll >>> Qlabel
+            self.scrollArea[i].setWidget(self.status[i])
+            self.scroll_layout[i].addWidget(self.scrollArea[i])
+            self.CAM_RHP[i].addLayout(self.scroll_layout[i])
+
+            self.CAM_Layout[i].addLayout(self.CAM_RHP[i])
+            self.CAM_Layout[i].setStretch(0, 3)
+            self.CAM_Layout[i].setStretch(1, 1)
+
+            if camera_num - 1 < 4:
+                list_x = [0,0,1,1]
+                list_y = [0,1,0,1]
+                self.Outer_Layout.addLayout(self.CAM_Layout[i], list_x[i], list_y[i])
+
+            elif camera_num - 1 < 9:
+                list_x = [0,0,0,1,1,1,2,2,2]
+                list_y = [0,1,2,0,1,2,0,1,2]
+                self.Outer_Layout.addLayout(self.CAM_Layout[i], list_x[i], list_y[i])
+
+            else:
+                list_x = [0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3]
+                list_y = [0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3]
+                self.Outer_Layout.addLayout(self.CAM_Layout[i], list_x[i], list_y[i])
+
+        self.gridLayout.addLayout(self.Outer_Layout, 0, 2, 1, 1)
+        MainWindow.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(MainWindow)
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1035, 21))
+        self.menubar.setObjectName("menubar")
+        MainWindow.setMenuBar(self.menubar)
+        self.statusbar = QtWidgets.QStatusBar(MainWindow)
+        self.statusbar.setObjectName("statusbar")
+        MainWindow.setStatusBar(self.statusbar)
+        QtWidgets.QApplication.processEvents()
+        self.retranslateUi(MainWindow)
+        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        QtWidgets.QApplication.processEvents()
+        MainWindow.ui=None
+
+    def retranslateUi(self, MainWindow):
+        _translate = QtCore.QCoreApplication.translate
+        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        for i in range(camera_num):
+            self.lbl_CAM_Num[i].setText(_translate("MainWindow", "CAM{num}".format(num = i + 1)))
+            self.lbl_prob_chk[i].setText(_translate("MainWindow", "문제 발생"))
+
+    def show_new_window(self, checked):
+        if MainWindow.ui is None:
+            MainWindow.ui = AnotherWindow()
+        MainWindow.ui.show()
+
+
+class AnotherWindow(QtWidgets.QWidget):
+    """
+    This "window" is a QWidget. If it has no parent, it
+    will appear as a free-floating window as we want.
+    """
+    def __init__(self):
+        super().__init__()
+        layout = QtWidgets.QVBoxLayout()
+        self.label = QtWidgets.QLabel("another window")
+        layout.addWidget(self.label)
+        self.setLayout(layout)
+
+
+#
+#
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    MainWindow = QtWidgets.QMainWindow()
+    ui = Ui_MainWindow()
+    ui.setupUi(MainWindow)
+
+    MainWindow.show()
+    sys.exit(app.exec_())
+
