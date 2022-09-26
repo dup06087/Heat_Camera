@@ -40,9 +40,9 @@ class Worker(threading.Thread):
             self.volt3 = []
             self.current = []
             states = []
-            temp_list = [random.randint(16,34) for i in range(camera_num)] # 16은 카메라 개수
-            volt1_list = [random.randint(16, 34) for i in range(camera_num)]
-            volt2_list = [random.randint(16, 34) for i in range(camera_num)]
+            temp_list = [random.randint(0,34) for i in range(camera_num)] # 16은 카메라 개수
+            volt1_list = [random.randint(0, 34) for i in range(camera_num)]
+            volt2_list = [random.randint(0, 34) for i in range(camera_num)]
             volt3_list = [random.randint(16, 34) for i in range(camera_num)]
             current_list = [random.randint(16, 34) for i in range(camera_num)]
             for i in range(camera_num):
