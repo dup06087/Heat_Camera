@@ -170,6 +170,10 @@ class Ui_MainWindow(object):
         for i in range(camera_num):
             self.lbl_CAM_Num[i].setText(_translate("MainWindow", "CAM{num}".format(num = i + 1)))
             self.lbl_prob_chk[i].setText(_translate("MainWindow", "문제 발생"))
+
+
+
+
 #
 #
 if __name__ == "__main__":
