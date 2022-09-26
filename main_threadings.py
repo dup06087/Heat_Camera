@@ -4,7 +4,7 @@ Created on Fri Nov 26 18:07:59 2021
 
 @author: USER
 """
-
+import copy
 import time
 import math
 import numpy as np
@@ -133,6 +133,7 @@ thread_draw_chart = QThread()
 ### Drawing Canvas
 canvas = []
 chart = []
+
 for i in range(camera_num):
     canvas.append(FigureCanvas(Figure(figsize=(10, 6),tight_layout=True)))
     chart.append(canvas[i].figure.add_subplot())
@@ -144,13 +145,28 @@ for i in range(camera_num):
     chart[i].get_yaxis().set_visible(False)
     chart[i].imshow(heatmap_zero, cmap='jet', vmin=min_temp, vmax=max_temp)
 
-    print("canvas ", i , "생성")
+    # print("canvas ", i , "생성")
     canvas[i].draw()
+
+child_canvas = []
+child_chart = []
+for i in range(camera_num):
+    child_canvas.append(FigureCanvas(Figure(figsize=(10, 6),tight_layout=True)))
+    child_chart.append(child_canvas[i].figure.add_subplot())
+
+    child_chart[i].clear()
+    child_chart[i].get_xaxis().set_visible(False)
+    child_chart[i].get_yaxis().set_visible(False)
+    child_chart[i].imshow(heatmap_zero, cmap='jet', vmin=min_temp, vmax=max_temp)
+
+    # print("canvas ", i , "생성")
+    child_canvas[i].draw()
 
 class Worker2(QObject):
     def __init__(self, parent=None, camera_num = camera_num):
         QObject.__init__(self, parent=parent)
         self.camera_num = camera_num
+
 
     def display_plot(self):
         while True:
@@ -166,8 +182,17 @@ class Worker2(QObject):
                     chart[i].imshow(self.temperature_upscale, cmap='jet', vmin=min_temp, vmax=max_temp)
 
                     canvas[i].draw()
-                    print("worker{num} 작동중".format(num = i))
-                    print(canvas[i])
+
+                    ###child
+                    child_chart[i].clear()
+
+                    child_chart[i].get_xaxis().set_visible(False)
+                    child_chart[i].get_yaxis().set_visible(False)
+                    child_chart[i].imshow(self.temperature_upscale, cmap='jet', vmin=min_temp, vmax=max_temp)
+
+                    child_canvas[i].draw()
+                    # print("worker{num} 작동중".format(num = i))
+                    # print(canvas[i])
                     # time.sleep(0.1)
             except:
                 print("drawing fail : ", self.cam_num)
