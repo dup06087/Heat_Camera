@@ -31,7 +31,7 @@ class Worker(threading.Thread):
         global current_outputs
 
         while True:
-            print("prevalues : ", values)
+            # print("prevalues : ", values)
 
             time.sleep(2)
             self.temp = []
@@ -52,18 +52,18 @@ class Worker(threading.Thread):
                 self.volt3.append(volt3_list[i])
                 self.current.append(current_list[i])
                 states.append(
-                    "temp : {temp}\nvolt1 : {volt1}\nvolt2 : {volt2}\nvolt3 : {volt3}\ncurrent : {current}\nhi\nbye\nnew\n\n".format(
+                    "temp : {temp}\nvolt1 : {volt1}\nvolt2 : {volt2}\nvolt3 : {volt3}\ncurrent : {current}\nhi\nbye\nnew\nln1\nln2\nln3\nln4\nln5\n\n\n".format(
                         temp=self.temp[i], volt1=self.volt1[i], volt2=self.volt2[i], volt3=self.volt3[i],
                         current=self.current[i]))
                 values = states
-            print("states" ,states)
+            # print("states" ,states)
 
             temp_outputs = self.temp
             volt1_outputs = self.volt1
             volt2_outputs = self.volt2
             volt3_outputs = self.volt3
             current_outputs = self.current
-            print("values : ", values)
+            # print("values : ", values)
 
 print("main thread start")
 t = Worker()                # sub thread 생성
