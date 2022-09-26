@@ -1,3 +1,5 @@
+import time
+
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 from get_cam_num import  camera_num
@@ -176,8 +178,64 @@ class Ui_MainWindow(object):
 
     def show_new_window(self, checked):
         if MainWindow.ui is None:
-            MainWindow.ui = AnotherWindow()
+           MainWindow.ui = AnotherWindow()
         MainWindow.ui.show()
+
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
+from matplotlib.backends.backend_qt5agg import FigureCanvas as FigureCanvas
+from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
+from matplotlib.figure import Figure
+import numpy as np
+import cv2
+
+thread_draw_chart = QThread()
+
+canvas = (FigureCanvas(Figure(figsize=(10, 6),tight_layout=True)))
+chart = (canvas.figure.add_subplot())
+
+chart.clear()
+chart.get_xaxis().set_visible(False)
+chart.get_yaxis().set_visible(False)
+chart.imshow(main_threadings.heatmap_zero, cmap='jet', vmin=main_threadings.min_temp, vmax=main_threadings.max_temp)
+
+canvas.draw()
+
+opened_num = 0
+
+class Worker2(QtCore.QObject):
+    def __init__(self, parent=None, opened_num = opened_num):
+        QtCore.QObject.__init__(self, parent=parent)
+        self.opened_num = opened_num
+
+    def display_plot(self):
+        while True:
+            try:
+                self.temperature_upscale = cv2.resize(main_threadings.temperature[self.opened_num], None, fx=8, fy=8, interpolation=cv2.INTER_CUBIC)
+                self.temperature_upscale = cv2.flip(self.temperature_upscale, 1)
+
+                chart.clear()
+
+                chart.get_xaxis().set_visible(False)
+                chart.get_yaxis().set_visible(False)
+                chart.imshow(self.temperature_upscale, cmap='jet', vmin=main_threadings.min_temp,
+                             vmax=main_threadings.max_temp)
+
+                canvas.draw()
+                time.sleep(0.5)
+                # print("worker child 작동중")
+                # print(canvas)
+                # time.sleep(0.1)
+            except:
+                print("drawing fail : ", self.opened_num)
+
+
+worker_draw_canvas = Worker2(opened_num = opened_num)
+worker_draw_canvas.moveToThread(thread_draw_chart)
+thread_draw_chart.started.connect(worker_draw_canvas.display_plot)
+
+thread_draw_chart.start()
 
 
 class AnotherWindow(QtWidgets.QWidget):
@@ -217,15 +275,16 @@ class AnotherWindow(QtWidgets.QWidget):
         self.CAM1_LHP_2.addWidget(self.lbl_CAM_Num_2)
 
         ###cam label end
+
+           ### copy canvas
+
         clicked_num = 1
 
         self.chart1_2 = QtWidgets.QVBoxLayout()
         self.chart1_2.setObjectName("chart1_2")
-        self.chart1_2.addWidget(main_threadings.canvas[clicked_num])
+        self.chart1_2.addWidget(canvas)
         self.CAM1_LHP_2.addLayout(self.chart1_2)
         self.CAM1_Layout_2.addLayout(self.CAM1_LHP_2)
-
-
 
 
         self.CAM2_RHP_2 = QtWidgets.QVBoxLayout()
@@ -244,26 +303,21 @@ class AnotherWindow(QtWidgets.QWidget):
         self.lbl_prob_chk_2.setAlignment(QtCore.Qt.AlignCenter)
         self.lbl_prob_chk_2.setObjectName("lbl_prob_chk_2")
         self.CAM2_RHP_2.addWidget(self.lbl_prob_chk_2)
-        self.lbl_temp_3 = QtWidgets.QLabel() ###
-        self.lbl_temp_3.setFrameShape(QtWidgets.QFrame.Box)
-        self.lbl_temp_3.setAlignment(QtCore.Qt.AlignCenter)
-        self.lbl_temp_3.setObjectName("lbl_temp_3")
-        self.CAM2_RHP_2.addWidget(self.lbl_temp_3)
-        self.lbl_volt1_3 = QtWidgets.QLabel() ###
-        self.lbl_volt1_3.setFrameShape(QtWidgets.QFrame.Box)
-        self.lbl_volt1_3.setAlignment(QtCore.Qt.AlignCenter)
-        self.lbl_volt1_3.setObjectName("lbl_volt1_3")
-        self.CAM2_RHP_2.addWidget(self.lbl_volt1_3)
-        self.lbl_volt2_3 = QtWidgets.QLabel() ###
-        self.lbl_volt2_3.setFrameShape(QtWidgets.QFrame.Box)
-        self.lbl_volt2_3.setAlignment(QtCore.Qt.AlignCenter)
-        self.lbl_volt2_3.setObjectName("lbl_volt2_3")
-        self.CAM2_RHP_2.addWidget(self.lbl_volt2_3)
-        self.lbl_current_3 = QtWidgets.QLabel() ###
-        self.lbl_current_3.setFrameShape(QtWidgets.QFrame.Box)
-        self.lbl_current_3.setAlignment(QtCore.Qt.AlignCenter)
-        self.lbl_current_3.setObjectName("lbl_current_3")
-        self.CAM2_RHP_2.addWidget(self.lbl_current_3)
+
+        self.scrollArea = QtWidgets.QScrollArea()  ##스크롤 영역 생성
+        self.scrollArea.setWidgetResizable(True)
+        self.scroll_layout =QtWidgets.QVBoxLayout()  ## 스크롤 넣을 layout >>> scroll
+        self.initial_value = QtWidgets.QLabel("No_signal\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
+        self.status_label = self.initial_value  ### 동적으로 초기화가 안 됨
+
+        font_status = QtGui.QFont()
+        font_status.setPointSize(15)
+        self.status_label.setFont(font_status)
+        self.status = self.status_label  ### scroll >>> Qlabel
+        self.scrollArea.setWidget(self.status)
+        self.scroll_layout.addWidget(self.scrollArea)
+        self.CAM2_RHP_2.addLayout(self.scroll_layout)
+
         self.CAM1_Layout_2.addLayout(self.CAM2_RHP_2)
         self.CAM1_Layout_2.setStretch(0, 3)
         self.CAM1_Layout_2.setStretch(1, 1)
@@ -278,13 +332,13 @@ class AnotherWindow(QtWidgets.QWidget):
 
 #
 #
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow()
-    ui.setupUi(MainWindow)
+# if __name__ == "__main__"
+import sys
+app = QtWidgets.QApplication(sys.argv)
+MainWindow = QtWidgets.QMainWindow()
+ui = Ui_MainWindow()
+ui.setupUi(MainWindow)
 
-    MainWindow.show()
-    sys.exit(app.exec_())
+MainWindow.show()
+# sys.exit(app.exec_())
 
