@@ -124,6 +124,7 @@ class Worker(QObject):
 
                 if time.time() > (rx_time_out + 60.0):
                     ClientSocket.close()
+                    sys.exit()
                     break
 
 
