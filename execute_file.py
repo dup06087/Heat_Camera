@@ -29,7 +29,7 @@ class Worker_get_data(QObject):
         while True:
             try:
                 for i in range(camera_num):
-                    print("temperature getting")
+                    # print("temperature getting")
                     # test =
                     prac_childwindow.ui.status_label[i].setText(Get_Equipment_status.values[i])
                     QtWidgets.QApplication.processEvents()  ### 중요
