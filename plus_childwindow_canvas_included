@@ -5,6 +5,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 from get_cam_num import  camera_num
 import main_threadings
+import initial_data
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -169,7 +170,7 @@ class Ui_MainWindow(object):
         self.Tool_Bar.setObjectName("ToolBar")
 
         self.lbl_logo = QtWidgets.QLabel()
-        pixmap = QtGui.QPixmap('00000.png')
+        pixmap = QtGui.QPixmap(initial_data.init_Logo_Location)
         pixmap = pixmap.scaled(100, 100, QtCore.Qt.KeepAspectRatio) ### tool bar width
         self.lbl_logo.setPixmap(QtGui.QPixmap(pixmap))
         self.Tool_Bar.addWidget(self.lbl_logo)
@@ -208,7 +209,8 @@ class Ui_MainWindow(object):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         for i in range(camera_num):
-            self.lbl_CAM_Num[i].setText(_translate("MainWindow", "CAM{num}".format(num = i + 1))) ######################
+            # self.lbl_CAM_Num[i].setText(_translate("MainWindow", "CAM{num}".format(num = i + 1))) ######################
+            self.lbl_CAM_Num[i].setText(_translate("MainWindow", initial_data.Cam_names[i]))  ######################
             self.lbl_prob_chk[i].setText(_translate("MainWindow", "문제 발생"))
 
     def show_new_window(self, checked):
@@ -234,7 +236,7 @@ class AnotherWindow(QtWidgets.QWidget):
 
         self.verticalLayout = QtWidgets.QVBoxLayout()
         self.verticalLayout.setObjectName("verticalLayout")
-        self.setWindowTitle("CAM{}".format(clicked_num + 1)) ##########################################################
+        self.setWindowTitle(initial_data.Cam_names[clicked_num]) ##########################################################
         self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
 
         self.CAM1_Layout_2 = QtWidgets.QHBoxLayout()
@@ -627,6 +629,8 @@ class Ui_Form(object):
         self.horizontalLayout_FileOpen.addItem(spacerItem)
         self.Btn_File_Open = QtWidgets.QPushButton(self.tab_2)
         self.Btn_File_Open.setObjectName("Btn_File_Open")
+        self.Btn_File_Open.clicked.connect(lambda : self.URL_get_clicked())
+
         self.horizontalLayout_FileOpen.addWidget(self.Btn_File_Open)
         self.tab_2_verticalLayout.addLayout(self.horizontalLayout_FileOpen)
 
@@ -647,18 +651,24 @@ class Ui_Form(object):
         self.verticalLayout.addWidget(self.buttonBox)
         self.verticalLayout_2.addLayout(self.verticalLayout)
 
-        self.retranslateUi(Form)
-        self.tabWidget.setCurrentIndex(1)
 
         self.cam_LineEdit = [self.lineEdit_1, self.lineEdit_2,self.lineEdit_3,self.lineEdit_4,self.lineEdit_5,self.lineEdit_6,self.lineEdit_7,self.lineEdit_8,self.lineEdit_9,self.lineEdit_10,
                              self.lineEdit_11,self.lineEdit_12,self.lineEdit_13,self.lineEdit_14,self.lineEdit_15,self.lineEdit_16]
         self.cam_LineEdit_Text=["CAM{}".format(i) for i in range((camera_num))]
+
+        self.retranslateUi(Form)
+        self.tabWidget.setCurrentIndex(1)
+
 
         QtCore.QMetaObject.connectSlotsByName(Form)
 
     def retranslateUi(self, Form):
         _translate = QtCore.QCoreApplication.translate
         Form.setWindowTitle(_translate("Form", "Settings"))
+        for i in range(camera_num):
+            self.cam_LineEdit[i].setText(initial_data.Cam_names[i])
+
+        self.lineEdit_URL.setText(_translate("Form", initial_data.init_Logo_Location))
         self.lbl_cam1.setText(_translate("Form", "CAM1"))
         self.lbl_cam2.setText(_translate("Form", "CAM2"))
         self.lbl_cam3.setText(_translate("Form", "CAM3"))
@@ -684,14 +694,33 @@ class Ui_Form(object):
 
     def change_cam_label(self):
         _translate = QtCore.QCoreApplication.translate
-
-        print("hi")
         for i in range(camera_num):
             if not self.cam_LineEdit[i].text() == "":
                 self.cam_LineEdit_Text[i] = self.cam_LineEdit[i].text()
+                ### txt open and write and save
+
                 ui.lbl_CAM_Num[i].setText(_translate("Form", self.cam_LineEdit_Text[i]))
 
-        print(self.cam_LineEdit_Text)
+
+        with open('cam_names.txt', 'w') as f:
+            f.writelines("\n".join(self.cam_LineEdit_Text))
+            f.close()
+
+
+        with open('URL.txt', 'w') as f:
+            new_url = self.lineEdit_URL.text()
+            f.writelines(new_url)
+            f.close()
+        self.lineEdit_URL.setText(_translate("Form", new_url))
+        ui.pixmap = QtGui.QPixmap(new_url)
+        ui.pixmap = ui.pixmap.scaled(100, 100, QtCore.Qt.KeepAspectRatio) ### tool bar width
+        ui.lbl_logo.setPixmap(QtGui.QPixmap(ui.pixmap))
+
+
+    def URL_get_clicked(self):
+        pass
+
+
 #
 # if __name__ == "__main__"
 import sys
