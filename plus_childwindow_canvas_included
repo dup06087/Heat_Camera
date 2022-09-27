@@ -208,7 +208,7 @@ class Ui_MainWindow(object):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         for i in range(camera_num):
-            self.lbl_CAM_Num[i].setText(_translate("MainWindow", "CAM{num}".format(num = i + 1)))
+            self.lbl_CAM_Num[i].setText(_translate("MainWindow", "CAM{num}".format(num = i + 1))) ######################
             self.lbl_prob_chk[i].setText(_translate("MainWindow", "문제 발생"))
 
     def show_new_window(self, checked):
@@ -234,7 +234,7 @@ class AnotherWindow(QtWidgets.QWidget):
 
         self.verticalLayout = QtWidgets.QVBoxLayout()
         self.verticalLayout.setObjectName("verticalLayout")
-        self.setWindowTitle("CAM{}".format(clicked_num + 1))
+        self.setWindowTitle("CAM{}".format(clicked_num + 1)) ##########################################################
         self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
 
         self.CAM1_Layout_2 = QtWidgets.QHBoxLayout()
@@ -629,24 +629,36 @@ class Ui_Form(object):
         self.Btn_File_Open.setObjectName("Btn_File_Open")
         self.horizontalLayout_FileOpen.addWidget(self.Btn_File_Open)
         self.tab_2_verticalLayout.addLayout(self.horizontalLayout_FileOpen)
+
         spacerItem1 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.tab_2_verticalLayout.addItem(spacerItem1)
         self.verticalLayout_7.addLayout(self.tab_2_verticalLayout)
         self.tabWidget.addTab(self.tab_2, "")
         self.verticalLayout.addWidget(self.tabWidget)
+
         self.buttonBox = QtWidgets.QDialogButtonBox(Form)
         self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Ok)
         self.buttonBox.setObjectName("buttonBox")
+
+        ### button ok, cancle
+        self.buttonBox.accepted.connect(lambda : self.change_cam_label())
+        self.buttonBox.rejected.connect(Form.close)
+
         self.verticalLayout.addWidget(self.buttonBox)
         self.verticalLayout_2.addLayout(self.verticalLayout)
 
         self.retranslateUi(Form)
         self.tabWidget.setCurrentIndex(1)
+
+        self.cam_LineEdit = [self.lineEdit_1, self.lineEdit_2,self.lineEdit_3,self.lineEdit_4,self.lineEdit_5,self.lineEdit_6,self.lineEdit_7,self.lineEdit_8,self.lineEdit_9,self.lineEdit_10,
+                             self.lineEdit_11,self.lineEdit_12,self.lineEdit_13,self.lineEdit_14,self.lineEdit_15,self.lineEdit_16]
+        self.cam_LineEdit_Text=["CAM{}".format(i) for i in range((camera_num))]
+
         QtCore.QMetaObject.connectSlotsByName(Form)
 
     def retranslateUi(self, Form):
         _translate = QtCore.QCoreApplication.translate
-        Form.setWindowTitle(_translate("Form", "Form"))
+        Form.setWindowTitle(_translate("Form", "Settings"))
         self.lbl_cam1.setText(_translate("Form", "CAM1"))
         self.lbl_cam2.setText(_translate("Form", "CAM2"))
         self.lbl_cam3.setText(_translate("Form", "CAM3"))
@@ -667,6 +679,19 @@ class Ui_Form(object):
         self.lbl_Logo.setText(_translate("Form", "Logo 위치"))
         self.Btn_File_Open.setText(_translate("Form", "File Open"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("Form", "Logo"))
+
+
+
+    def change_cam_label(self):
+        _translate = QtCore.QCoreApplication.translate
+
+        print("hi")
+        for i in range(camera_num):
+            if not self.cam_LineEdit[i].text() == "":
+                self.cam_LineEdit_Text[i] = self.cam_LineEdit[i].text()
+                ui.lbl_CAM_Num[i].setText(_translate("Form", self.cam_LineEdit_Text[i]))
+
+        print(self.cam_LineEdit_Text)
 #
 # if __name__ == "__main__"
 import sys
